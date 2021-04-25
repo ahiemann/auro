@@ -5,7 +5,7 @@
     <arg name="laser_enabled" value="true"/>
   </include>
 
-  <node name="husky_highlevel_controller" pkg="husky_highlevel_controller" type="husky_highlevel_controller_node" output="screen">
+  <node name="husky_highlevel_controller" pkg="husky_highlevel_controller" type="husky_highlevel_controller" output="screen">
   	<rosparam command="load" file="$(find husky_highlevel_controller)/config/params.yaml"/>
   </node>
   

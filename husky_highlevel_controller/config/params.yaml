@@ -1,2 +1,2 @@
-topic: /scan
+subscriber_topic: /scan
 queueSize: 10
