@@ -1,2 +1,3 @@
 subscriber_topic: /scan
+scan_publisher: /scan_modified
 queueSize: 10

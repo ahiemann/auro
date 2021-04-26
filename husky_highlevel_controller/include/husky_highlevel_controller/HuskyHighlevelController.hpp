@@ -16,12 +16,19 @@ namespace husky_highlevel_controller {
             bool readParameters();
 
             void laserScanCallback(const sensor_msgs::LaserScan& msg);
+            void publishLaserScan(const sensor_msgs::LaserScan& msg, int minIndex, double minValue);
 
             //! ROS node handle
             ros::NodeHandle& nodeHandle_;
 
             //! ROS topic subscriber
             ros::Subscriber subscriber_;
+
+            // scan publisher
+            ros::Publisher publisher_;
+
+            // scan publisher name
+            std::string scan_publisher_;
 
             //! ROS topic name to subscribe to
             std::string subscriberTopic_;
