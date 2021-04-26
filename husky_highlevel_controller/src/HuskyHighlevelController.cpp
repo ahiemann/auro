@@ -22,6 +22,6 @@ namespace husky_highlevel_controller {
     }
 
     void HuskyHighlevelController::laserScanCallback(const sensor_msgs::LaserScan& msg) {
-        ROS_INFO("Minimum laser scan range: [%f]" , algorithm_.getMinimalDistance(msg));
+        ROS_INFO("Minimum laser scan range: [%lf]" , algorithm_.getMinimalDistance(msg));
     }
 } // end namespace

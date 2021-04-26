@@ -6,7 +6,7 @@ namespace husky_highlevel_controller {
         public:
             Algorithm();
             virtual ~Algorithm();
-            float getMinimalDistance(const sensor_msgs::LaserScan& msg);
+            double getMinimalDistance(const sensor_msgs::LaserScan& msg);
         private:
     };
 } // end namespace
