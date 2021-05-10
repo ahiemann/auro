@@ -1,3 +1,7 @@
 subscriber_topic: /scan
 scan_publisher: /scan_modified
+cmd_vel_publisher: /cmd_vel
+target_marker_publisher: /visualization_marker
+proportional_factor: 0.5
 queueSize: 10
+

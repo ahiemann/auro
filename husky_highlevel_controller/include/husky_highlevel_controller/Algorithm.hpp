@@ -9,6 +9,7 @@ namespace husky_highlevel_controller {
             virtual ~Algorithm();
             std::tuple<double, int> getMinimalDistance(const sensor_msgs::LaserScan& msg);
             sensor_msgs::LaserScan createNewLaserScan(const sensor_msgs::LaserScan last_scan, int minIndex, double minValue);
+            float calculateTargetPosition(const sensor_msgs::LaserScan laserScan, const int minIndex);
         private:
     };
 } // end namespace

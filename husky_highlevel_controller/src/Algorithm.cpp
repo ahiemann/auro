@@ -68,4 +68,9 @@ namespace husky_highlevel_controller {
 
         return new_scan;
     }
+
+    float Algorithm::calculateTargetPosition(const sensor_msgs::LaserScan laserScan, const int minIndex){
+        return laserScan.angle_min + (laserScan.angle_increment * minIndex);
+    }
+
 }

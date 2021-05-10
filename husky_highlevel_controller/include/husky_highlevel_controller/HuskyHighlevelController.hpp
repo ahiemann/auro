@@ -5,6 +5,12 @@
 // ROS
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
+#include "geometry_msgs/Twist.h"
+#include "visualization_msgs/Marker.h"
+#include <tf2_ros/transform_listener.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <geometry_msgs/TransformStamped.h>
+#include <tf/tf.h>
 
 namespace husky_highlevel_controller {
     class HuskyHighlevelController {
@@ -24,8 +30,29 @@ namespace husky_highlevel_controller {
             //! ROS topic subscriber
             ros::Subscriber subscriber_;
 
+            // targetMarker publisher
+            ros::Publisher publisher_targetMarker;
+
+            // ROS transform buffer
+            tf2_ros::Buffer tfBuffer_;
+
+            // ROS transform listener
+            tf2_ros::TransformListener tfListener_;
+
+            // targetMarker publisher name
+            std::string target_marker_publisher_;
+            
+            // cmd_vel publisher
+            ros::Publisher publisher_cmd_vel;
+
+            // cmd_vel publisher name
+            std::string cmd_vel_publisher_;
+
+            // proportional factor for p-controller
+            float proportionalFactor_;
+
             // scan publisher
-            ros::Publisher publisher_;
+            ros::Publisher publisher_scan;
 
             // scan publisher name
             std::string scan_publisher_;
@@ -42,4 +69,4 @@ namespace husky_highlevel_controller {
             //! Algorithm computation object
             Algorithm algorithm_;
     }; // end class
-} // end namespace
+} // end namespac
