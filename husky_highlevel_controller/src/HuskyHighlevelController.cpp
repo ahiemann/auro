@@ -7,7 +7,7 @@ namespace husky_highlevel_controller {
             ROS_ERROR("Could not read parameters");
             ros::requestShutdown();
         }
-        subscriber_ = nodeHandle_.subscribe(subscriberTopic_, queueSize_, &HuskyHighlevelController::laserScanCallback, this);
+        subscriber_ = nodeHandle_.subscribe(sensorDataTopic_, queueSize_, &HuskyHighlevelController::sensorDataCallback, this);
         publisher_scan = nodeHandle_.advertise<sensor_msgs::LaserScan>(scan_publisher_, queueSize_);
         publisher_cmd_vel = nodeHandle_.advertise<geometry_msgs::Twist>(cmd_vel_publisher_, queueSize_);
         publisher_targetMarker = nodeHandle_.advertise<visualization_msgs::Marker>(target_marker_publisher_, 1);
@@ -18,7 +18,7 @@ namespace husky_highlevel_controller {
     HuskyHighlevelController::~HuskyHighlevelController() {  }
 
     bool HuskyHighlevelController::readParameters() {
-        if (!nodeHandle_.getParam("subscriber_topic", subscriberTopic_)) return false;
+        if (!nodeHandle_.getParam("sensor_data_topic", sensorDataTopic_)) return false;
         if (!nodeHandle_.getParam("queueSize", queueSize_)) return false;
         if (!nodeHandle_.getParam("scan_publisher", scan_publisher_)) return false;
         if (!nodeHandle_.getParam("cmd_vel_publisher", cmd_vel_publisher_)) return false;
@@ -27,20 +27,15 @@ namespace husky_highlevel_controller {
         return true;
     }
 
-    void HuskyHighlevelController::laserScanCallback(const sensor_msgs::LaserScan& msg) {
-        double minValue;
-        int minIndex;
-        std::tie(minValue, minIndex) = algorithm_.getMinimalDistance(msg);
-        this->publishLaserScan(msg, minIndex, minValue);
-        ROS_INFO("Minimum laser scan range: [%lf]" , minValue);
-
-        float targetAngle = algorithm_.calculateTargetPosition(msg, minIndex);
+    void HuskyHighlevelController::sensorDataCallback(const husky_highlevel_controller_msgs::TargetPose& msg) {
+        double distance = msg.distance;
+        float targetAngle = msg.angle;
         
         geometry_msgs::Twist cmd_vel;
 
 
         // control robot to the targetAngle
-        if (minValue > 1) {
+        if (distance > 1) {
             cmd_vel.linear.x = 1;
             cmd_vel.angular.z = proportionalFactor_ * (0 - targetAngle);
             ROS_INFO("Angle :[%lf]", cmd_vel.angular.z );
@@ -63,8 +58,8 @@ namespace husky_highlevel_controller {
         targetMarker.type = visualization_msgs::Marker::CYLINDER;
         targetMarker.action = visualization_msgs::Marker::ADD;
 
-        targetMarker.pose.position.x = (minValue + 1) * cos(targetAngle);
-        targetMarker.pose.position.y = -(minValue) * sin(targetAngle);
+        targetMarker.pose.position.x = (distance + 1) * cos(targetAngle);
+        targetMarker.pose.position.y = -(distance) * sin(targetAngle);
         targetMarker.pose.position.z = 0;
 
         targetMarker.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, 0);

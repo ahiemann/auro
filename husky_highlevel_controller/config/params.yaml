@@ -1,4 +1,5 @@
-subscriber_topic: /scan
+laserscan_topic: /scan
+sensor_data_topic: /movement_data
 scan_publisher: /scan_modified
 cmd_vel_publisher: /cmd_vel
 target_marker_publisher: /visualization_marker

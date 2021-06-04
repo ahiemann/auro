@@ -1,6 +1,7 @@
 #pragma once
 
 #include "husky_highlevel_controller/Algorithm.hpp"
+#include "husky_highlevel_controller_msgs/TargetPose.h"
 
 // ROS
 #include <ros/ros.h>
@@ -21,7 +22,7 @@ namespace husky_highlevel_controller {
         private:
             bool readParameters();
 
-            void laserScanCallback(const sensor_msgs::LaserScan& msg);
+            void sensorDataCallback(const husky_highlevel_controller_msgs::TargetPose& msg);
             void publishLaserScan(const sensor_msgs::LaserScan& msg, int minIndex, double minValue);
 
             //! ROS node handle
@@ -58,7 +59,7 @@ namespace husky_highlevel_controller {
             std::string scan_publisher_;
 
             //! ROS topic name to subscribe to
-            std::string subscriberTopic_;
+            std::string sensorDataTopic_;
 
             // size for message queue
             int queueSize_;

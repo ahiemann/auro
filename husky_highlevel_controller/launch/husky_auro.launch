@@ -8,6 +8,10 @@
   <node name="husky_highlevel_controller" pkg="husky_highlevel_controller" type="husky_highlevel_controller" output="screen">
   	<rosparam command="load" file="$(find husky_highlevel_controller)/config/params.yaml"/>
   </node>
+
+  <node name="husky_highlevel_controller_sensor_data" pkg="husky_highlevel_controller" type="husky_highlevel_controller_sensor_data" output="screen">
+  	<rosparam command="load" file="$(find husky_highlevel_controller)/config/params.yaml"/>
+  </node>
   
   <!--node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen"/-->
   
