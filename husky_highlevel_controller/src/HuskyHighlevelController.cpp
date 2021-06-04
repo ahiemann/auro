@@ -2,7 +2,7 @@
 
 
 namespace husky_highlevel_controller {
-    HuskyHighlevelController::HuskyHighlevelController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_) {
+    HuskyHighlevelController::HuskyHighlevelController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_), server("drive_until_distance_action", boost::bind(&HuskyHighlevelController::driveCallback, this, _1), false) {
         if(! readParameters()) {
             ROS_ERROR("Could not read parameters");
             ros::requestShutdown();
@@ -102,5 +102,9 @@ namespace husky_highlevel_controller {
 
         // Publish new LaserScan object
         publisher_scan.publish(new_scan);
+    }
+
+    void HuskyHighlevelController::driveCallback(const husky_highlevel_controller::MoveUntilDistanceActionConstPtr& goal) {
+        // double distance = goal->
     }
 } // end namespace

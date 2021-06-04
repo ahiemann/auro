@@ -17,7 +17,7 @@ namespace husky_highlevel_controller {
         for (int i = 0; i < msg.ranges.size(); ++i) {
             if (msg.ranges[i] < min) {
                 min = msg.ranges[i];
-                minIndex = i;
+                minIndex = i;   
             }
         }
         ROS_INFO_STREAM_THROTTLE(2.0,"Minimum Range: " << min);

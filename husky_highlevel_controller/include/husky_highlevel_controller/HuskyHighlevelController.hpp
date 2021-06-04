@@ -2,6 +2,7 @@
 
 #include "husky_highlevel_controller/Algorithm.hpp"
 #include "husky_highlevel_controller_msgs/TargetPose.h"
+#include "husky_highlevel_controller/MoveUntilDistanceAction.h"
 
 // ROS
 #include <ros/ros.h>
@@ -12,6 +13,10 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include <geometry_msgs/TransformStamped.h>
 #include <tf/tf.h>
+#include <actionlib/server/simple_action_server.h>
+
+
+typedef actionlib::SimpleActionServer<husky_highlevel_controller::MoveUntilDistanceAction> ActionServer;
 
 namespace husky_highlevel_controller {
     class HuskyHighlevelController {
@@ -23,7 +28,11 @@ namespace husky_highlevel_controller {
             bool readParameters();
 
             void sensorDataCallback(const husky_highlevel_controller_msgs::TargetPose& msg);
+            void driveCallback(const husky_highlevel_controller::MoveUntilDistanceActionConstPtr& goal);
             void publishLaserScan(const sensor_msgs::LaserScan& msg, int minIndex, double minValue);
+
+            // Action Server
+            ActionServer server;
 
             //! ROS node handle
             ros::NodeHandle& nodeHandle_;
