@@ -28,11 +28,11 @@ namespace husky_highlevel_controller {
             bool readParameters();
 
             void sensorDataCallback(const husky_highlevel_controller_msgs::TargetPose& msg);
-            void driveCallback(const husky_highlevel_controller::MoveUntilDistanceActionConstPtr& goal);
+            void driveCallback(const husky_highlevel_controller::MoveUntilDistanceGoalConstPtr &goal);
             void publishLaserScan(const sensor_msgs::LaserScan& msg, int minIndex, double minValue);
 
             // Action Server
-            ActionServer server;
+            ActionServer actionServer_;
 
             //! ROS node handle
             ros::NodeHandle& nodeHandle_;
