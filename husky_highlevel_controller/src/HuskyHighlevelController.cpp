@@ -2,7 +2,7 @@
 
 
 namespace husky_highlevel_controller {
-    HuskyHighlevelController::HuskyHighlevelController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_), actionServer_("drive_until_distance_action", boost::bind(&HuskyHighlevelController::driveCallback, this, _1), false) {
+    HuskyHighlevelController::HuskyHighlevelController(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle), tfListener_(tfBuffer_), actionServer_("move_until_distance_action", boost::bind(&HuskyHighlevelController::driveCallback, this, _1), false) {
         if(! readParameters()) {
             ROS_ERROR("Could not read parameters");
             ros::requestShutdown();
@@ -12,10 +12,21 @@ namespace husky_highlevel_controller {
         publisher_cmd_vel = nodeHandle_.advertise<geometry_msgs::Twist>(cmd_vel_publisher_, queueSize_);
         publisher_targetMarker = nodeHandle_.advertise<visualization_msgs::Marker>(target_marker_publisher_, 1);
 
+        // Initialize lastTargetPose with high value
+        husky_highlevel_controller_msgs::TargetPose targetPose;
+        targetPose.distance = 1000.0;
+        targetPose.angle = 0.0;
+        this->lastTargetPose_ = targetPose;
+
+
+        actionServer_.start();
+
         ROS_INFO("Successfully launched node for Husky Highlevel Controller");
     }
 
-    HuskyHighlevelController::~HuskyHighlevelController() {  }
+    HuskyHighlevelController::~HuskyHighlevelController() {  
+        //actionServer_.shutdown();
+    }
 
     bool HuskyHighlevelController::readParameters() {
         if (!nodeHandle_.getParam("sensor_data_topic", sensorDataTopic_)) return false;
@@ -28,25 +39,34 @@ namespace husky_highlevel_controller {
     }
 
     void HuskyHighlevelController::sensorDataCallback(const husky_highlevel_controller_msgs::TargetPose& msg) {
-        double distance = msg.distance;
-        float targetAngle = msg.angle;
-        
-        geometry_msgs::Twist cmd_vel;
+        this->lastTargetPose_ = msg;
+    }
 
+    void HuskyHighlevelController::publishLaserScan(const sensor_msgs::LaserScan& last_scan, int minIndex, double minValue) {
+        sensor_msgs::LaserScan new_scan;
 
-        // control robot to the targetAngle
-        if (distance > 1) {
-            cmd_vel.linear.x = 1;
-            cmd_vel.angular.z = proportionalFactor_ * (0 - targetAngle);
-            ROS_INFO("Angle :[%lf]", cmd_vel.angular.z );
-        } 
-        else {
-            cmd_vel.linear.x = 0; 
-            cmd_vel.angular.z = 0; 
+        if (minIndex == -1) {
+            return;
         }
+        new_scan = algorithm_.createNewLaserScan(last_scan, minIndex, minValue);
 
-        publisher_cmd_vel.publish(cmd_vel);
+        // Publish new LaserScan object
+        publisher_scan.publish(new_scan);
+    }
 
+    void HuskyHighlevelController::driveCallback(const husky_highlevel_controller::MoveUntilDistanceGoalConstPtr &goal) {
+        bool success = true;
+        bool preempted = false;
+
+        ros::Rate r(1);
+        ROS_INFO("Action was triggered");
+
+        double targetDistance = goal->distance;
+
+        double distance = this->lastTargetPose_.distance;
+        float targetAngle = this->lastTargetPose_.angle;
+
+        /*
         // TargetAngle Marker - Rviz
         visualization_msgs::Marker targetMarker;
         targetMarker.header.frame_id = "base_link";
@@ -73,8 +93,6 @@ namespace husky_highlevel_controller {
         targetMarker.color.g = 0.0;
         targetMarker.color.b = 1.0;
 
-        //Aufgabe 7a)
-        //publisher_targetMarker.publish(targetMarker);
 
         geometry_msgs::TransformStamped transformStamped;
 
@@ -88,23 +106,55 @@ namespace husky_highlevel_controller {
         catch (tf2::TransformException ex)
         {
           ROS_ERROR("%s", ex.what());
+          result_.resultDistance = feedback_.feedbackDistance;
+          actionServer_.setAborted(result_);
           return;
         }
-    }
+        */
+        
 
-    void HuskyHighlevelController::publishLaserScan(const sensor_msgs::LaserScan& last_scan, int minIndex, double minValue) {
-        sensor_msgs::LaserScan new_scan;
+        ROS_INFO("Starting action loop now");
+        ROS_INFO("Received target distance is: %lf", targetDistance);
+        ROS_INFO("Last measured distance is %lf", this->lastTargetPose_.distance);
+        while (this->lastTargetPose_.distance > targetDistance) {
+            ROS_INFO("LOOP: Received target distance is: %lf", targetDistance);
+            ROS_INFO("LOOP: Last measured distance is %lf", this->lastTargetPose_.distance);
+            geometry_msgs::Twist cmd_vel;
+            if (actionServer_.isPreemptRequested() || !ros::ok()) {
+                ROS_INFO("Action preempted ");
+                // set the action state to preempted
+                actionServer_.setPreempted();
+                success = false;
+                preempted = true;
+                break;
+            }
 
-        if (minIndex == -1) {
-            return;
+            
+            cmd_vel.linear.x = 1;
+            cmd_vel.angular.z = proportionalFactor_ * (0 - targetAngle);
+            ROS_INFO("Angle :[%lf]", cmd_vel.angular.z );
+
+            publisher_cmd_vel.publish(cmd_vel);
+
+            // publish feedback with last measurement
+            feedback_.feedbackDistance = this->lastTargetPose_.distance;
+            actionServer_.publishFeedback(feedback_);
         }
-        new_scan = algorithm_.createNewLaserScan(last_scan, minIndex, minValue);
+        geometry_msgs::Twist cmd_vel;
+        // stop anyway
+        cmd_vel.linear.x = 0; 
+        cmd_vel.angular.z = 0; 
+        publisher_cmd_vel.publish(cmd_vel);
 
-        // Publish new LaserScan object
-        publisher_scan.publish(new_scan);
-    }
-
-    void HuskyHighlevelController::driveCallback(const husky_highlevel_controller::MoveUntilDistanceGoalConstPtr &goal) {
-        // double distance = goal->
+        if (success) {
+            result_.resultDistance = feedback_.feedbackDistance;
+            ROS_INFO("Action Succeeded");
+            // set the action state to succeeded
+            actionServer_.setSucceeded(result_);
+        }
+        else if (!preempted) {
+            result_.resultDistance = feedback_.feedbackDistance;
+            actionServer_.setAborted(result_);
+        }
     }
 } // end namespace

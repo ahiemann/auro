@@ -2,6 +2,7 @@
 float64 distance
 ---
 # Result
+float64 resultDistance
 ---
 # Feeback
 float64 feedbackDistance

@@ -153,14 +153,18 @@ add_executable(${PROJECT_NAME}_sensor_data
   src/HuskyHighlevelControllerSensorData.cpp
 )
 
-
-
 add_executable(${PROJECT_NAME} 
   src/${PROJECT_NAME}_node.cpp
   src/HuskyHighlevelController.cpp
 )
+
+add_executable(${PROJECT_NAME}_action_client 
+  src/${PROJECT_NAME}_action_client_node.cpp
+)
+
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
 target_compile_features(${PROJECT_NAME}_sensor_data INTERFACE cxx_std_11)
+target_compile_features(${PROJECT_NAME}_action_client INTERFACE cxx_std_11)
 
 
 ## Rename C++ executable without prefix
@@ -196,6 +200,11 @@ target_link_libraries(${PROJECT_NAME}
 
 
 target_link_libraries(${PROJECT_NAME}_sensor_data
+  ${PROJECT_NAME}_core
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(${PROJECT_NAME}_action_client
   ${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
 )

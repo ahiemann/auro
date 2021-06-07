@@ -34,6 +34,15 @@ namespace husky_highlevel_controller {
             // Action Server
             ActionServer actionServer_;
 
+            // last received target pose value
+            husky_highlevel_controller_msgs::TargetPose lastTargetPose_;
+
+            // Feedback
+            husky_highlevel_controller::MoveUntilDistanceFeedback feedback_;
+
+            // Result
+            husky_highlevel_controller::MoveUntilDistanceResult result_;
+
             //! ROS node handle
             ros::NodeHandle& nodeHandle_;
 
