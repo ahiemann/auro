@@ -25,7 +25,7 @@ namespace husky_highlevel_controller {
     }
 
     HuskyHighlevelController::~HuskyHighlevelController() {  
-        //actionServer_.shutdown();
+        actionServer_.shutdown();
     }
 
     bool HuskyHighlevelController::readParameters() {
@@ -49,7 +49,7 @@ namespace husky_highlevel_controller {
             return;
         }
         new_scan = algorithm_.createNewLaserScan(last_scan, minIndex, minValue);
-
+        
         // Publish new LaserScan object
         publisher_scan.publish(new_scan);
     }
@@ -58,16 +58,15 @@ namespace husky_highlevel_controller {
         bool success = true;
         bool preempted = false;
 
-        ros::Rate r(1);
         ROS_INFO("Action was triggered");
 
         double targetDistance = goal->distance;
 
         double distance = this->lastTargetPose_.distance;
         float targetAngle = this->lastTargetPose_.angle;
-
-        /*
+        
         // TargetAngle Marker - Rviz
+        /*
         visualization_msgs::Marker targetMarker;
         targetMarker.header.frame_id = "base_link";
         targetMarker.header.stamp = ros::Time();
@@ -111,15 +110,18 @@ namespace husky_highlevel_controller {
           return;
         }
         */
+    
         
-
+        geometry_msgs::Twist cmd_vel;
+        bool isGoalReached = false;
         ROS_INFO("Starting action loop now");
-        ROS_INFO("Received target distance is: %lf", targetDistance);
-        ROS_INFO("Last measured distance is %lf", this->lastTargetPose_.distance);
-        while (this->lastTargetPose_.distance > targetDistance) {
-            ROS_INFO("LOOP: Received target distance is: %lf", targetDistance);
-            ROS_INFO("LOOP: Last measured distance is %lf", this->lastTargetPose_.distance);
-            geometry_msgs::Twist cmd_vel;
+        while (!isGoalReached) {
+            targetAngle = this->lastTargetPose_.angle;
+            distance = this->lastTargetPose_.distance;
+
+            if(distance < targetDistance && distance > targetDistance-0.50)
+                isGoalReached = true;
+            
             if (actionServer_.isPreemptRequested() || !ros::ok()) {
                 ROS_INFO("Action preempted ");
                 // set the action state to preempted
@@ -128,19 +130,17 @@ namespace husky_highlevel_controller {
                 preempted = true;
                 break;
             }
-
-            
+  
             cmd_vel.linear.x = 1;
             cmd_vel.angular.z = proportionalFactor_ * (0 - targetAngle);
-            ROS_INFO("Angle :[%lf]", cmd_vel.angular.z );
-
-            publisher_cmd_vel.publish(cmd_vel);
 
             // publish feedback with last measurement
             feedback_.feedbackDistance = this->lastTargetPose_.distance;
             actionServer_.publishFeedback(feedback_);
+
+            publisher_cmd_vel.publish(cmd_vel);
         }
-        geometry_msgs::Twist cmd_vel;
+
         // stop anyway
         cmd_vel.linear.x = 0; 
         cmd_vel.angular.z = 0; 
