@@ -28,17 +28,22 @@ namespace husky_highlevel_controller {
         int minIndex;
         std::tie(minValue, minIndex) = algorithm_.getMinimalDistance(msg);
         
+        ROS_INFO("Minimial distance from algorithm: %lf", minValue);
 
-        float targetAngle = algorithm_.calculateTargetPosition(msg, minIndex);
+        double targetAngle = algorithm_.calculateTargetPosition(msg, minIndex);
         this->publishMovementData(minValue, targetAngle);
     }
 
-    void HuskyHighlevelControllerSensorData::publishMovementData(const double distance, const float targetAngle) {
+    void HuskyHighlevelControllerSensorData::publishMovementData(const double distance, const double targetAngle) {
         husky_highlevel_controller_msgs::TargetPose targetPose;
         targetPose.distance = distance;
         targetPose.angle = targetAngle;
 
+
         // Publish new sensor data object
-        publisher_sensor_data.publish(targetPose);
+        if ((int)distance >= 1) {
+            ROS_INFO("Distance was %lf and is published", distance);
+            publisher_sensor_data.publish(targetPose);
+        }   
     }
 } // end namespace

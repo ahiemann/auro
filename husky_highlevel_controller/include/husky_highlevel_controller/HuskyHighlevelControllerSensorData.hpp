@@ -14,7 +14,7 @@ namespace husky_highlevel_controller
             bool readParameters();
 
             void laserScanCallback(const sensor_msgs::LaserScan& msg);
-            void publishMovementData(const double distance, const float targetAngle);
+            void publishMovementData(const double distance, const double targetAngle);
 
             //! ROS node handle
             ros::NodeHandle& nodeHandle_;

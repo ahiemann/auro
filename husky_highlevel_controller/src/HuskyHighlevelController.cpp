@@ -62,8 +62,6 @@ namespace husky_highlevel_controller {
 
         double targetDistance = goal->distance;
 
-        double distance = this->lastTargetPose_.distance;
-        float targetAngle = this->lastTargetPose_.angle;
         
         // TargetAngle Marker - Rviz
         /*
@@ -116,11 +114,16 @@ namespace husky_highlevel_controller {
         bool isGoalReached = false;
         ROS_INFO("Starting action loop now");
         while (!isGoalReached) {
-            targetAngle = this->lastTargetPose_.angle;
-            distance = this->lastTargetPose_.distance;
+            double targetAngle = this->lastTargetPose_.angle;
+            double distance = this->lastTargetPose_.distance;
 
-            if(distance < targetDistance && distance > targetDistance-0.50)
+            ROS_INFO("ACTION_LOOP: Current distance: %lf", distance);
+
+            if(distance < targetDistance && distance > targetDistance-0.50) {
+                ROS_INFO("Goal is reached! Distance was %lf", distance);
                 isGoalReached = true;
+            }
+                
             
             if (actionServer_.isPreemptRequested() || !ros::ok()) {
                 ROS_INFO("Action preempted ");

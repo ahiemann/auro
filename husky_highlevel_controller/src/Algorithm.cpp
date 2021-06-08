@@ -20,6 +20,7 @@ namespace husky_highlevel_controller {
                 minIndex = i;   
             }
         }
+        ROS_INFO("getMinimalDistance: %lf", min);
         ROS_INFO_STREAM_THROTTLE(2.0,"Minimum Range: " << min);
         return std::tuple<double, int>(min, minIndex);
     }
