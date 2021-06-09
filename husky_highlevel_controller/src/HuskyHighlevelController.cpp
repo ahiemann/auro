@@ -55,6 +55,8 @@ namespace husky_highlevel_controller {
     }
 
     void HuskyHighlevelController::driveCallback(const husky_highlevel_controller::MoveUntilDistanceGoalConstPtr &goal) {
+        ros::Rate r(0.5);
+
         bool success = true;
         bool preempted = false;
 
@@ -117,7 +119,7 @@ namespace husky_highlevel_controller {
             double targetAngle = this->lastTargetPose_.angle;
             double distance = this->lastTargetPose_.distance;
 
-            ROS_INFO("ACTION_LOOP: Current distance: %lf", distance);
+            //ROS_INFO("ACTION_LOOP: Current distance: %lf", distance);
 
             if(distance < targetDistance && distance > targetDistance-0.50) {
                 ROS_INFO("Goal is reached! Distance was %lf", distance);

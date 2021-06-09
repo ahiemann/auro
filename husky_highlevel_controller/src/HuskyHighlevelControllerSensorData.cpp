@@ -28,7 +28,7 @@ namespace husky_highlevel_controller {
         int minIndex;
         std::tie(minValue, minIndex) = algorithm_.getMinimalDistance(msg);
         
-        ROS_INFO("Minimial distance from algorithm: %lf", minValue);
+        //ROS_INFO("Minimial distance from algorithm: %lf", minValue);
 
         double targetAngle = algorithm_.calculateTargetPosition(msg, minIndex);
         this->publishMovementData(minValue, targetAngle);
@@ -39,14 +39,6 @@ namespace husky_highlevel_controller {
         targetPose.distance = distance;
         targetPose.angle = targetAngle;
 
-
-        // Publish new sensor data object
-        /*
-        if ((int)distance >= 1) {
-            ROS_INFO("Distance was %lf and is published", distance);
-            publisher_sensor_data.publish(targetPose);
-        } 
-        */ 
        publisher_sensor_data.publish(targetPose); 
     }
 } // end namespace

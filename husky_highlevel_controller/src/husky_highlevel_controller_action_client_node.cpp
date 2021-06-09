@@ -50,7 +50,7 @@ int main (int argc, char **argv)
     ROS_INFO("Action finished: %s",state.toString().c_str());
   }
   else {
-    ROS_WARN("Action did not finish before the time out. Goal will be cancelled");
+    ROS_ERROR("Action did not finish before the time out. Goal will be cancelled");
     actionClient_.cancelAllGoals();
   }
     
