@@ -19,12 +19,6 @@ void doneCallback(const actionlib::SimpleClientGoalState& state, const husky_hig
 void feedbackCB(const husky_highlevel_controller::MoveUntilDistanceFeedbackConstPtr& feedback) {
   double remainingDistance = feedback->feedbackDistance;
   ROS_INFO("Feedback received, remaining distance is %lf", remainingDistance);
-
-  // Just for demonstration of action cancellation
-  if ((int)remainingDistance < 3) {
-    ROS_WARN("Remaining distance below 3.0, will cancel action now");
-    actionClient_->cancelAllGoals();
-  }
 }
 
 int main (int argc, char **argv)
@@ -47,7 +41,19 @@ int main (int argc, char **argv)
   goal.distance = 1;
   actionClient_.sendGoal(goal, &doneCallback, &activeCallback, &feedbackCB);
 
-  ros::spin();
+  //wait for the action to return
+  bool finished_before_timeout = actionClient_.waitForResult(ros::Duration(10.0));
+
+  if (finished_before_timeout)
+  {
+    actionlib::SimpleClientGoalState state = actionClient_.getState();
+    ROS_INFO("Action finished: %s",state.toString().c_str());
+  }
+  else {
+    ROS_WARN("Action did not finish before the time out. Goal will be cancelled");
+    actionClient_.cancelAllGoals();
+  }
+    
 
   //exit  
   return 0;

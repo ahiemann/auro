@@ -41,9 +41,12 @@ namespace husky_highlevel_controller {
 
 
         // Publish new sensor data object
+        /*
         if ((int)distance >= 1) {
             ROS_INFO("Distance was %lf and is published", distance);
             publisher_sensor_data.publish(targetPose);
-        }   
+        } 
+        */ 
+       publisher_sensor_data.publish(targetPose); 
     }
 } // end namespace
