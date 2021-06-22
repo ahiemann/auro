@@ -55,6 +55,8 @@ namespace husky_highlevel_controller {
     }
 
     void HuskyHighlevelController::driveCallback(const husky_highlevel_controller::MoveUntilDistanceGoalConstPtr &goal) {
+        return; // "deactivated" for exercise 5
+
         ros::Rate r(0.5);
 
         bool success = true;
